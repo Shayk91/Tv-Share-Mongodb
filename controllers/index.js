@@ -185,6 +185,7 @@ const createShow = async (req, res) => {
     if (show) {
       return res.status(500).json({ error: "Show already exists" })
     } else {
+      show = await new Show(req.body)
       await show.save()
       return res.status(201).json(
         show,
