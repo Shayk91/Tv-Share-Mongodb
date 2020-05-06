@@ -144,8 +144,8 @@ const someBullshit = async (req, res) => {
 
 const testShows = async () => {
   let tempArr = []
-  let startDate = getStartDate()
-  let endDate = getUpcomingEndDate(startDate)
+  let startDate = await getStartDate()
+  let endDate = await getUpcomingEndDate(startDate)
   // console.log(startDate, endDate)
   let { data } = await axios.get(`https://data.tmsapi.com/v1.1/lineups/USA-HULU501-DEFAULT/grid?startDateTime=${startDate}&endDateTime=${endDate}&stationId=${networks.map((network) => network.stationId)}&imageAspectTV=4x3&imageSize=Lg&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
   data.forEach(network => {
