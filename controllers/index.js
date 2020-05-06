@@ -5,7 +5,7 @@ const Show = require('../models/show')
 const db = require('../db')
 const axios = require('axios')
 const networks = require('../assests/networks.json')
-const { getStartDate, getUpcomingEndDate } = require('../assests/date')
+// const { getStartDate, getUpcomingEndDate } = require('../assests/date')
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'))
 
@@ -95,9 +95,9 @@ const someBullshit = async (req, res) => {
 
 const testShows = async () => {
   let tempArr = []
-  let startDate = getStartDate()
-  let endDate = getUpcomingEndDate(startDate)
-  console.log(startDate, endDate)
+  // let startDate = getStartDate()
+  // let endDate = getUpcomingEndDate(startDate)
+  // console.log(startDate, endDate)
   let { data } = await axios.get(`https://data.tmsapi.com/v1.1/lineups/USA-HULU501-DEFAULT/grid?startDateTime=2020-05-056:01:02Z&endDateTime=2020-05-05T18:01:02Z&stationId=${networks.map((network) => network.stationId)}&imageAspectTV=4x3&imageSize=Lg&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
   data.forEach(network => {
     network.airings.forEach(program => {
