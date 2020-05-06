@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 const Show = require('../models/show')
 const db = require('../db')
+const axios = require('axios')
+const networks = require('../assests/networks.json')
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'))
 
@@ -81,13 +83,60 @@ const getProducts = async (req, res) => {
   }
 }
 
+const someBullshit = async (req, res) => {
+  try {
+    const shows = await testShows()
+    res.json(shows)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+const testShows = async () => {
+  let tempArr = []
+  let { data } = await axios.get(`https://data.tmsapi.com/v1.1/lineups/USA-HULU501-DEFAULT/grid?startDateTime=2020-05-05T06:01:02Z&endDateTime=2020-05-05T18:01:02Z&stationId=${networks.map((network) => network.stationId)}&imageAspectTV=4x3&imageSize=Lg&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
+  data.forEach(network => {
+    network.airings.forEach(program => {
+      tempArr.push(program.program.tmsId)
+    })
+  })
+  let shows = await Show.find()
+  let showIdArr = shows.map(show => show.tmsId)
+  let returnShows = tempArr.filter(id => {
+    return !showIdArr.includes(id)
+  }).map(id => {
+    try {
+      return axios.get(`https://data.tmsapi.com/v1.1/programs/${id}?imageSize=Lg&imageAspectTV=3x4&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
+    } catch (error) {
+      return null
+    }
+  })
+  if (returnShows.length) {
+    returnShows = await Promise.all(returnShows)
+    returnShows = returnShows.map(show => {
+      return show.data
+    })
+    await Show.collection.insertMany(returnShows);
+  }
+  returnShows.push(...shows.filter(show => {
+    return tempArr.includes(show.tmsId)
+  }))
+  return returnShows
+}
+
 const createShow = async (req, res) => {
   try {
-    const show = await new Show(req.body)
-    await show.save()
-    return res.status(201).json(
-      show,
-    );
+
+    // const show = await new Show(req.body)
+    let show = await Show.findOne({ seriesId: req.body.tmsId })
+    if (show) {
+      return res.status(500).json({ error: "Show already exists" })
+    } else {
+      await show.save()
+      return res.status(201).json(
+        show,
+      );
+    }
   } catch (error) {
     return res.status(500).json({ error: error.message })
   }
@@ -154,5 +203,6 @@ module.exports = {
   getAllShows,
   getShowById,
   updateShow,
-  deleteShow
+  deleteShow,
+  someBullshit
 }
