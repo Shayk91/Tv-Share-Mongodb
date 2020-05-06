@@ -97,7 +97,8 @@ const testShows = async () => {
   let tempArr = []
   let startDate = getStartDate()
   let endDate = getUpcomingEndDate(startDate)
-  let { data } = await axios.get(`https://data.tmsapi.com/v1.1/lineups/USA-HULU501-DEFAULT/grid?startDateTime=${startDate}&endDateTime=${endDate}&stationId=${networks.map((network) => network.stationId)}&imageAspectTV=4x3&imageSize=Lg&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
+  console.log(startDate, endDate)
+  let { data } = await axios.get(`https://data.tmsapi.com/v1.1/lineups/USA-HULU501-DEFAULT/grid?startDateTime=2020-05-056:01:02Z&endDateTime=2020-05-05T18:01:02Z&stationId=${networks.map((network) => network.stationId)}&imageAspectTV=4x3&imageSize=Lg&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
   data.forEach(network => {
     network.airings.forEach(program => {
       tempArr.push(program.program.tmsId)
