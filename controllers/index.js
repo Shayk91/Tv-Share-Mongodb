@@ -12,6 +12,63 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'))
 const SALT_ROUNDS = 11
 const TOKEN_KEY = 'areallylonggoodkey'
 
+const getStartDate = () => {
+  let wholeDate = new Date().toLocaleString()
+  let localDateArray = wholeDate.split(' ')
+  let dateWithComma = localDateArray[0].split(',')
+  let localDate = dateWithComma[0]
+  let newLocalDateArray = localDate.split('/')
+  let correctLocalDate = newLocalDateArray.join('-')
+  let correctLocalDateArray = correctLocalDate.split('-')
+  let localDay = correctLocalDateArray[2]
+  let localTime = localDateArray[1]
+  let localTimeArray = localTime.split(':')
+  let localHour = localTimeArray[0]
+  if (parseInt(localHour) < 10) {
+    localHour = '0' + localHour
+  }
+  let date = new Date()
+  let dateInEnglish = date.toISOString().split('.')
+  let dateFormat = dateInEnglish[0]
+  let dateArray = dateFormat.split('T')
+  let smallDate = dateArray[0]
+  let smallDateArray = smallDate.split('-')
+  smallDateArray.splice(0, 1, localDay)
+  let joinDate = smallDateArray.join('-')
+  let time = dateArray[1]
+  let timeArray = time.split(':')
+  timeArray.splice(0, 1, localHour)
+  let joinTime = timeArray.join(':')
+  let newDate = joinDate + `T${joinTime}Z`;
+  return newDate
+}
+
+const getUpcomingEndDate = (passedDate) => {
+  let dateInEnglish = passedDate.split('.')
+  let dateFormat = dateInEnglish[0]
+  let dateArray = dateFormat.split('T')
+  let time = dateArray[1]
+  let timeArray = time.split(':')
+  let hour = timeArray[0]
+  let increment = 12
+  if (parseInt(hour) < 12) {
+    let newHour = parseInt(hour) + increment
+    timeArray.splice(0, 1, newHour)
+    let joinTime = timeArray.join(':')
+    let newDate = dateArray[0] + `T${joinTime}`;
+    return newDate
+  } else {
+    let newHour = parseInt(hour) + increment - 24
+    if (newHour < 10) {
+      newHour = '0' + newHour
+    }
+    timeArray.splice(0, 1, newHour)
+    let joinTime = timeArray.join(':')
+    let newDate = dateArray[0] + `T${joinTime}`;
+    return getFutureDay(newDate)
+  }
+}
+
 const signUp = async (req, res) => {
   try {
     const { username, email, password } = req.body
@@ -75,14 +132,6 @@ const verifyUser = async (req, res) => {
 
 const changePassword = async (req, res) => { }
 
-const getProducts = async (req, res) => {
-  try {
-    const products = await Product.find()
-    res.json(products)
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-}
 
 const someBullshit = async (req, res) => {
   try {
@@ -95,10 +144,10 @@ const someBullshit = async (req, res) => {
 
 const testShows = async () => {
   let tempArr = []
-  // let startDate = getStartDate()
-  // let endDate = getUpcomingEndDate(startDate)
+  let startDate = getStartDate()
+  let endDate = getUpcomingEndDate(startDate)
   // console.log(startDate, endDate)
-  let { data } = await axios.get(`https://data.tmsapi.com/v1.1/lineups/USA-HULU501-DEFAULT/grid?startDateTime=2020-05-056:01:02Z&endDateTime=2020-05-05T18:01:02Z&stationId=${networks.map((network) => network.stationId)}&imageAspectTV=4x3&imageSize=Lg&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
+  let { data } = await axios.get(`https://data.tmsapi.com/v1.1/lineups/USA-HULU501-DEFAULT/grid?startDateTime=${startDate}&endDateTime=${endDate}&stationId=${networks.map((network) => network.stationId)}&imageAspectTV=4x3&imageSize=Lg&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
   data.forEach(network => {
     network.airings.forEach(program => {
       tempArr.push(program.program.tmsId)
@@ -197,6 +246,8 @@ const deleteShow = async (req, res) => {
     return res.status(500).send(error.message);
   }
 }
+
+
 
 module.exports = {
   signUp,
