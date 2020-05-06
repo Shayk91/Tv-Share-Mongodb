@@ -159,7 +159,7 @@ const testShows = async () => {
     return !showIdArr.includes(id)
   }).map(id => {
     try {
-      return axios.get(`https://data.tmsapi.com/v1.1/programs/${id}?imageSize=Lg&imageAspectTV=3x4&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
+      return axios.get(`https://data.tmsapi.com/v1.1/programs/${id}?imageSize=Lg&imageAspectTV=4x3&api_key=v5nfdpmz66hp2nd5t9gefcrc`)
     } catch (error) {
       return null
     }
