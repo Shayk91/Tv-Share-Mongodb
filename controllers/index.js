@@ -135,6 +135,7 @@ const changePassword = async (req, res) => { }
 
 const someBullshit = async (req, res) => {
   try {
+    // await Show.init()
     const shows = await testShows()
     res.json(shows)
   } catch (error) {
@@ -179,7 +180,6 @@ const testShows = async () => {
 
 const createShow = async (req, res) => {
   try {
-
     // const show = await new Show(req.body)
     let show = await Show.findOne({ seriesId: req.body.tmsId })
     if (show) {

@@ -11,7 +11,7 @@ const Show = new Schema(
     entityType: { type: String },
     genres: { type: Array },
     keywords: { type: Object },
-    longDescription: { type: String },
+    longDescriptison: { type: String },
     officialUrl: { type: String },
     origAirDate: { type: String },
     preferredImage: { type: Object },
@@ -26,7 +26,7 @@ const Show = new Schema(
     subType: { type: String },
     title: { type: String },
     titleLang: { type: String },
-    tmsId: { type: String },
+    tmsId: { type: String, unique: true },
     totalEpisodes: { type: Number },
     totalSeasons: { type: String }
   },
